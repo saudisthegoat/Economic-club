@@ -46,7 +46,7 @@
 
   // ---------- أدوات ----------
   const clone = (s) => ({ users: s.users, orgs: s.orgs.slice(), acts: s.acts.slice(), notifs: s.notifs.slice(), seq: s.seq || 0 });
-  const nextId = (s, p) => { s.seq = (s.seq || 0) + 1; return p + s.seq + '_' + Math.random().toString(36).slice(2, 6); };
+  const nextId = (s, p) => { s.seq = (s.seq || 0) + 1; return p + s.seq + '_' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 8); };
   const user = (s, id) => s.users.find((u) => u.id === id);
   const org = (s, id) => s.orgs.find((o) => o.id === id);
   // تطبيع الأسماء: إزالة التشكيل والكلمات العامة (قبل توحيد الحروف) ثم توحيد الهمزات والتاء المربوطة
@@ -301,6 +301,8 @@
 });
 
 </script>
+<script src="config.js"></script>
+<script src="ecsb.js"></script>
 </head>
 <body>
 <x-dc>
@@ -357,6 +359,40 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
 </style>
 </helmet>
 
+<sc-if value="{{showLogin}}" hint-placeholder-val="{{false}}">
+<div class="ec {{themeClass}}" dir="rtl" style="display:flex;align-items:center;justify-content:center;padding:24px;min-height:100vh">
+ <div class="card" role="main" style="width:min(460px,100%);padding:28px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+   <svg viewBox="0 0 279 204" width="52" height="38" aria-hidden="true" fill="var(--ink)"><rect x="0" y="6" width="44" height="197"></rect><rect x="74" y="64" width="44" height="108"></rect><rect x="154" y="20" width="45" height="137"></rect><rect x="234" y="0" width="45" height="68"></rect><rect x="234" y="87" width="45" height="116"></rect></svg>
+   <img src="1eddfdeb5ce76df079a05cc1021f2b41.png" alt="نادي الاقتصاد | Economics Club" style="height:38px;width:auto;display:block;{{logoFilter}}">
+  </div>
+  <sc-if value="{{au.loading}}" hint-placeholder-val="{{false}}"><div style="color:var(--mut);padding:12px 0">جارٍ التحميل…</div></sc-if>
+  <sc-if value="{{au.form}}" hint-placeholder-val="{{true}}">
+   <h1 class="h-disp" style="font-size:28px;margin:0 0 6px">{{au.title}}</h1>
+   <div class="lbl" style="margin-bottom:16px">{{au.sub}}</div>
+   <div role="group" aria-label="نوع العملية" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+    <button type="button" class="pick {{au.inOn}}" aria-pressed="{{au.isIn}}" onClick="{{au.goIn}}"><b>دخول</b></button>
+    <button type="button" class="pick {{au.upOn}}" aria-pressed="{{au.isUp}}" onClick="{{au.goUp}}"><b>حساب جديد</b></button>
+   </div>
+   <div data-form="1" onKeyDown="{{au.key}}" style="display:flex;flex-direction:column;gap:14px">
+    <sc-if value="{{au.isUp}}" hint-placeholder-val="{{false}}"><label><span class="lbl">اسمك (يظهر لزملائك)</span><input class="inp" name="name" autocomplete="name" placeholder="مثال: الهنوف السهلي"></label></sc-if>
+    <label><span class="lbl">البريد الإلكتروني</span><input class="inp" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@example.com"></label>
+    <label><span class="lbl">كلمة المرور</span><input class="inp" name="password" type="password" dir="ltr" autocomplete="current-password" placeholder="٨ أحرف على الأقل"></label>
+    <sc-if value="{{au.isUp}}" hint-placeholder-val="{{false}}">
+     <div role="group" aria-label="الفريق"><span class="lbl">فريقك</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px"><sc-for list="{{au.teams}}" as="t"><button type="button" class="pick {{t.on}}" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><b>{{t.name}}</b></button></sc-for></div>
+     </div>
+    </sc-if>
+    <sc-if value="{{au.msg}}" hint-placeholder-val="{{false}}"><div role="alert" style="border:1px solid {{au.msgColor}};color:{{au.msgColor}};padding:10px 12px;font-size:14px;line-height:1.7">{{au.msg}}</div></sc-if>
+    <button type="button" class="btn" onClick="{{au.submit}}" disabled="{{au.busy}}">{{au.cta}}</button>
+   </div>
+   <div class="lbl" style="margin-top:14px;line-height:1.8">يُنشأ الحساب بدور «عضو». ترقية الأدوار (قائد فريق / قيادة العلاقات) تتم من إدارة المنصة فقط.</div>
+  </sc-if>
+ </div>
+</div>
+</sc-if>
+
+<sc-if value="{{showApp}}" hint-placeholder-val="{{true}}">
 <div class="ec {{themeClass}}" dir="rtl" style="display:flex;flex-wrap:wrap;align-items:stretch">
 
  <aside class="side" style="flex:0 0 250px;background:var(--s1);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;padding:20px 0 16px">
@@ -370,6 +406,7 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
    </sc-for>
   </nav>
   <div class="sidefoot" style="margin-top:auto;padding:16px 18px 0;border-top:1px solid var(--line);font-size:12px;color:var(--mut);line-height:1.8">
+   <sc-if value="{{demo}}" hint-placeholder-val="{{false}}"><div>
    <div style="font-weight:700;color:var(--warn);margin-bottom:4px">نموذج أولي — محاكاة</div>
    <div>الآن (الرياض): <b class="num" style="color:var(--ink)">{{clockText}}</b></div>
    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">
@@ -379,15 +416,23 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
     <button class="btn2" style="min-height:32px;padding:0 10px" onClick="{{clk0}}">إعادة</button>
    </div>
    التذكيرات تُحسب داخل المتصفح فقط عند الفتح وكل ٣٠ ثانية — لا توجد مهام خلفية حقيقية ولا إرسال فعلي.
+   </div></sc-if>
+   <sc-if value="{{live}}" hint-placeholder-val="{{false}}"><div>
+   <div style="font-weight:700;color:var(--acc);margin-bottom:4px">● متصل — بيانات مشتركة</div>
+   <div>الآن (الرياض): <b class="num" style="color:var(--ink)">{{clockText}}</b></div>
+   <div style="margin-top:6px">تتحدّث البيانات تلقائيًا كل ١٥ ثانية، والتذكيرات تُحسب على الخادم.</div>
+   </div></sc-if>
   </div>
  </aside>
 
  <main style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
   <header style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px clamp(16px,2.5vw,32px);border-bottom:1px solid var(--line);background:var(--s1)">
-   <label style="flex:0 1 260px;min-width:180px"><span class="vh">المستخدم (محاكاة)</span>
+   <sc-if value="{{demo}}" hint-placeholder-val="{{false}}"><label style="flex:0 1 260px;min-width:180px"><span class="vh">المستخدم (محاكاة)</span>
     <select class="inp" aria-label="المستخدم (محاكاة)" value="{{meId}}" onChange="{{onMe}}"><sc-for list="{{userOpts}}" as="o"><option value="{{o.v}}">{{o.t}}</option></sc-for></select>
-   </label>
-   <span class="lbl" style="flex:1 1 120px">محاكاة مستخدم — ليست مصادقة حقيقية</span>
+   </label></sc-if>
+   <sc-if value="{{demo}}" hint-placeholder-val="{{false}}"><span class="lbl" style="flex:1 1 120px">محاكاة مستخدم — ليست مصادقة حقيقية</span></sc-if>
+   <sc-if value="{{live}}" hint-placeholder-val="{{false}}"><div style="flex:1 1 160px;line-height:1.5"><b>{{meName}}</b><div class="lbl">{{meRole}}</div></div></sc-if>
+   <sc-if value="{{live}}" hint-placeholder-val="{{false}}"><button class="btn2" onClick="{{signOut}}">خروج</button></sc-if>
    <button class="btn2" onClick="{{toggleTheme}}" aria-label="تبديل النمط">{{themeLabel}}</button>
    <button class="btn2" onClick="{{toggleNotif}}" aria-label="الإشعارات" aria-expanded="{{notifOpen}}">🔔 <span class="num" style="color:{{unreadColor}}">{{unread}}</span></button>
   </header>
@@ -588,12 +633,21 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
 <section aria-labelledby="t-set" style="display:flex;flex-direction:column;gap:16px;max-width:820px">
  <h1 id="t-set" class="h-disp" style="font-size:clamp(34px,4vw,56px)">الإعــــدادات</h1>
  <div class="card" style="padding:20px"><div style="font-weight:700;margin-bottom:8px">المظهر</div><button class="btn2" onClick="{{toggleTheme}}">{{themeLabel}}</button></div>
+ <sc-if value="{{demo}}" hint-placeholder-val="{{false}}"><div style="display:contents">
  <div class="card" style="padding:20px;line-height:1.9;font-size:14px"><div style="font-weight:700;margin-bottom:8px">حالة النموذج الأولي</div>
   البيانات خيالية وتُحفظ في متصفحك فقط. تبديل المستخدم أعلى الصفحة محاكاة لتجربة عدة أعضاء وليس تسجيل دخول. افتح تبويبين بمستخدمين مختلفين لتجربة العمل المتزامن (المزامنة بين التبويبات فقط).<br>
   التذكيرات والتصعيد تُحسب داخل المتصفح عند الفتح وكل ٣٠ ثانية، ولا تعمل في الخلفية ولا تُرسل فعليًا. ساعة المحاكاة (في الشريط الجانبي) تقدّم الوقت لتجربة المهل.
   <div style="margin-top:12px"><button class="btn2" style="border-color:var(--bad);color:var(--bad)" onClick="{{resetData}}">إعادة ضبط البيانات التجريبية</button></div></div>
  <div class="card" style="padding:20px;line-height:1.9;font-size:14px"><div style="font-weight:700;margin-bottom:8px">المطلوب للإنتاج (غير مُنفَّذ)</div>
   <sc-for list="{{roadmap}}" as="r"><div style="padding:4px 0;border-top:1px solid var(--line)">○ {{r}}</div></sc-for></div>
+ </div></sc-if>
+ <sc-if value="{{live}}" hint-placeholder-val="{{false}}"><div class="card" style="padding:20px;line-height:1.9;font-size:14px"><div style="font-weight:700;margin-bottom:8px">حسابك</div>
+  {{meName}} — {{meRole}}<br><span dir="ltr">{{meEmail}}</span>
+  <div style="margin-top:12px"><button class="btn2" onClick="{{signOut}}">تسجيل الخروج</button></div></div></sc-if>
+ <sc-if value="{{live}}" hint-placeholder-val="{{false}}"><div class="card" style="padding:20px;line-height:1.9;font-size:14px"><div style="font-weight:700;margin-bottom:8px">كيف تعمل المنصة الآن</div>
+  البيانات محفوظة في قاعدة بيانات مشتركة: كل جهة يضيفها عضو تظهر للجميع، ويُمنع تسجيل جهة قيد التواصل مرة ثانية.<br>
+  التذكير بعد ٣ أيام والتصعيد بعد ٢٤ ساعة يُحسبان على الخادم (عند فتح أي عضو للمنصة، وكل ١٠ دقائق إن فُعّلت الجدولة). الإشعارات داخل المنصة فقط — لا إرسال بريد أو رسائل خارجية.<br>
+  الصلاحيات مفروضة في قاعدة البيانات: العضو يعدّل جهاته فقط، وقائد الفريق فريقه، وقيادة العلاقات الجميع.</div></sc-if>
 </section>
 </sc-if>
 
@@ -665,6 +719,7 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
   <div role="status" style="position:fixed;bottom:20px;inset-inline-start:20px;background:var(--acc);color:var(--accink);padding:10px 16px;font-weight:700;z-index:80;display:flex;gap:14px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.35)"><span>{{toast}}</span><sc-if value="{{toastAction}}" hint-placeholder-val="{{false}}"><button class="btn2" style="min-height:32px;border-color:var(--accink);color:var(--accink)" onClick="{{toastGo}}">{{toastAction}}</button></sc-if></div>
  </sc-if>
 </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
@@ -673,16 +728,23 @@ class Component extends DCLogic {
     const E = window.ECEngine;
     this.E = E;
     this.KEY = 'ec_proto_v2';
-    let blob = this.readBlob();
-    if (!blob) { blob = { offset: 0, data: E.seed(Date.now()) }; this.writeBlob(blob); }
-    let me = null, theme = 'dark';
-    try { me = sessionStorage.getItem('ec_me'); } catch (e) {}
+    this.live = !!window.ECDB;   // وضع قاعدة البيانات المشتركة (Supabase) إذا وُجد config.js
+    let blob, me = null, theme = 'dark';
+    if (this.live) {
+      blob = { offset: 0, data: { users: [{ id: '_', name: '—', role: 'member', team: 'ext', title: '' }], orgs: [], acts: [], notifs: [], seq: 0 } };
+      me = '_';
+    } else {
+      blob = this.readBlob();
+      if (!blob) { blob = { offset: 0, data: E.seed(Date.now()) }; this.writeBlob(blob); }
+      try { me = sessionStorage.getItem('ec_me'); } catch (e) {}
+      if (!me || !E.user(blob.data, me)) me = blob.data.users[3].id;
+    }
     try { theme = localStorage.getItem('ec_theme') || 'dark'; } catch (e) {}
-    if (!me || !E.user(blob.data, me)) me = blob.data.users[3].id;
-    this.state = { data: blob.data, offset: blob.offset, me, theme, screen: 'dash', notifOpen: false, toast: '', toastAction: '', modal: null, tick: 0,
+    this.state = { authStatus: this.live ? 'loading' : 'in', authMode: 'in', authTeam: 'ext', authMsg: '', authOk: false, authBusy: false, data: blob.data, offset: blob.offset, me, theme, screen: 'dash', notifOpen: false, toast: '', toastAction: '', modal: null, tick: 0,
       oq: '', ofStatus: 'all', ofOwner: 'all', ofProject: 'all', oview: 'list', lfTeam: 'all', lfMember: 'all', lfUrg: 'all', rfTeam: 'all', rfMem: 'all', rfStatus: 'all', lgOrg: 'all' };
   }
   componentDidMount() {
+    if (this.live) { this.liveBoot(); return; }
     this.onStorage = (e) => {
       if (e.key !== this.KEY) return;
       const b = this.readBlob();
@@ -692,13 +754,50 @@ class Component extends DCLogic {
     this.timer = setInterval(() => this.evaluate(), 30000);
     this.evaluate();
   }
-  componentWillUnmount() { window.removeEventListener('storage', this.onStorage); clearInterval(this.timer); }
+  componentWillUnmount() { window.removeEventListener('storage', this.onStorage); clearInterval(this.timer); clearInterval(this.liveTimer); if (this.onFocus) window.removeEventListener('focus', this.onFocus); }
+  // ===== الوضع الحي (قاعدة بيانات مشتركة) =====
+  liveBoot() {
+    const DB = window.ECDB;
+    DB.restore().then((sess) => { if (sess) return this.liveEnter(sess); this.setState({ authStatus: 'out' }); }).catch(() => this.setState({ authStatus: 'out' }));
+    this.onFocus = () => { if (this.state.authStatus === 'in') this.liveRefresh(); };
+    window.addEventListener('focus', this.onFocus);
+    this.liveTimer = setInterval(() => { if (this.state.authStatus === 'in') this.liveRefresh(); }, 15000);
+  }
+  liveEnter(sess) {
+    const DB = window.ECDB;
+    return DB.runReminders().then(() => DB.load()).then((data) => {
+      const me = sess.user && sess.user.id;
+      if (!this.E.user(data, me)) { DB.signOut(); this.setState({ authStatus: 'out', authMsg: 'لم يُعثر على ملفك الشخصي. أعد المحاولة بعد قليل أو تواصل مع الإدارة.', authOk: false }); return; }
+      this.lastRem = Date.now();
+      this.setState({ data, me, authStatus: 'in', authMsg: '', screen: 'dash', tick: Date.now() });
+    }).catch((e) => { this.setState({ authStatus: 'out', authMsg: '⚠ ' + (e && e.message ? e.message : 'تعذّر تحميل البيانات'), authOk: false }); });
+  }
+  liveRefresh() {
+    const DB = window.ECDB;
+    if (this.refreshing || DB.pending() > 0) return;
+    this.refreshing = true;
+    const rem = Date.now() - (this.lastRem || 0) > 60000 ? (this.lastRem = Date.now(), DB.runReminders()) : Promise.resolve();
+    rem.then(() => DB.load()).then((data) => { if (DB.pending() === 0) this.setState({ data, tick: Date.now() }); })
+      .catch((e) => { if (e && /NO_SESSION|انتهت الجلسة/.test(e.message)) this.setState({ authStatus: 'out', authMsg: 'انتهت الجلسة — سجّل الدخول من جديد.', authOk: false }); })
+      .then(() => { this.refreshing = false; });
+  }
+  liveSave(oldData, newData) {
+    window.ECDB.save(oldData, newData).catch((e) => { this.say('⚠ ' + (e && e.message ? e.message : 'تعذّر الحفظ')); this.refreshing = false; this.liveRefresh(); });
+  }
   // ===== التخزين (localStorage: نموذج أولي فقط) =====
   readBlob() { try { const r = localStorage.getItem(this.KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
   writeBlob(b) { try { localStorage.setItem(this.KEY, JSON.stringify(b)); } catch (e) {} }
-  now() { return Date.now() + (this.state ? this.state.offset : 0); }
+  now() { return Date.now() + (this.state && !this.live ? this.state.offset : 0); }
   // تطبيق عملية على أحدث نسخة مخزّنة (لمحاكاة عدة مستخدمين في تبويبات مختلفة) ثم تشغيل المحرّك
   apply(fn) {
+    if (this.live) {
+      const old = this.state.data, now = Date.now(), r = fn(old, now);
+      if (!r.ok) return r;
+      if (r.state === old) return r;
+      this.setState({ data: r.state });
+      this.liveSave(old, r.state);
+      return r;
+    }
     const E = this.E, b = this.readBlob() || { offset: this.state.offset, data: this.state.data };
     const now = Date.now() + b.offset;
     const r = fn(b.data, now);
@@ -709,12 +808,14 @@ class Component extends DCLogic {
     return Object.assign({}, r, { state: st });
   }
   evaluate() {
+    if (this.live) return this.liveRefresh();
     const E = this.E, b = this.readBlob() || { offset: this.state.offset, data: this.state.data };
     const now = Date.now() + b.offset, st = E.runEngine(b.data, now);
     if (st !== b.data) this.writeBlob({ offset: b.offset, data: st });
     this.setState({ data: st, offset: b.offset, tick: now });
   }
   advance(ms) {
+    if (this.live) return;
     const b = this.readBlob() || { offset: 0, data: this.state.data };
     b.offset = ms === 0 ? 0 : b.offset + ms;
     this.writeBlob(b);
@@ -753,6 +854,34 @@ class Component extends DCLogic {
     this.say('أُرسل تنبيه مباشر إلى العضو وسُجّل في النشاط');
     return r;
   }
+  // ===== شاشة الدخول =====
+  vAuth() {
+    const s = this.state, mode = s.authMode, up = mode === 'up';
+    const readForm = (e) => { const v = {}; const root = e.target && e.target.closest ? e.target.closest('[data-form]') : null; if (root) root.querySelectorAll('input[name]').forEach((el) => { v[el.name] = String(el.value).trim(); }); return v; };
+    const submit = (e) => {
+      const v = readForm(e), DB = window.ECDB;
+      if (!v.email || !v.password) { this.setState({ authMsg: '⚠ اكتب البريد وكلمة المرور.', authOk: false }); return; }
+      if (up && !v.name) { this.setState({ authMsg: '⚠ اكتب اسمك ليظهر لزملائك.', authOk: false }); return; }
+      if (up && v.password.length < 8) { this.setState({ authMsg: '⚠ كلمة المرور قصيرة — ٨ أحرف على الأقل.', authOk: false }); return; }
+      this.setState({ authBusy: true, authMsg: '', authOk: false });
+      const p = up ? DB.signUp(v.email, v.password, v.name, s.authTeam) : DB.signIn(v.email, v.password).then((sess) => ({ session: sess }));
+      p.then((r) => {
+        if (r && r.session) { this.setState({ authBusy: false, authStatus: 'loading' }); return this.liveEnter(r.session); }
+        this.setState({ authBusy: false, authMode: 'in', authMsg: 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.', authOk: true });
+      }).catch((err) => this.setState({ authBusy: false, authMsg: '⚠ ' + (err && err.message ? err.message : 'تعذّر إكمال الطلب'), authOk: false }));
+    };
+    return {
+      showLogin: this.live && s.authStatus !== 'in', showApp: s.authStatus === 'in', live: this.live, demo: !this.live,
+      au: {
+        loading: s.authStatus === 'loading', form: s.authStatus === 'out', isUp: up, isIn: !up, inOn: up ? '' : 'on', upOn: up ? 'on' : '',
+        title: up ? 'حساب جديد' : 'تسجيل الدخول', sub: up ? 'سجّل مرة واحدة بإيميلك — ثم تدخل دائمًا بنفس البريد.' : 'ادخل بالبريد وكلمة المرور.',
+        goIn: () => this.setState({ authMode: 'in', authMsg: '' }), goUp: () => this.setState({ authMode: 'up', authMsg: '' }),
+        teams: [['ext', 'التواصل الخارجي'], ['sup', 'الدعم والإمداد']].map((t) => ({ name: t[1], on: s.authTeam === t[0] ? 'on' : '', pressed: s.authTeam === t[0], pick: () => this.setState({ authTeam: t[0] }) })),
+        msg: s.authMsg, msgColor: s.authOk ? 'var(--acc)' : 'var(--bad)', busy: s.authBusy, cta: s.authBusy ? 'لحظة…' : up ? 'إنشاء الحساب' : 'دخول',
+        submit, key: (e) => { if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') { e.preventDefault(); submit(e); } }
+      }
+    };
+  }
   // ===== الغلاف =====
   vShell() {
     const s = this.state, E = this.E, d = s.data, now = this.now(), me = E.user(d, s.me);
@@ -775,6 +904,8 @@ class Component extends DCLogic {
       themeClass: light ? 'light' : '', themeLabel: light ? '☾ داكن' : '☀ فاتح', logoFilter: light ? 'filter:invert(1)' : '',
       nav: items.map((i) => ({ label: i[1], cls: s.screen === i[0] ? 'on' : '', cur: s.screen === i[0] ? 'page' : 'false', go: () => this.setState({ screen: i[0], notifOpen: false }), badge: (i[0] === 'lead' || (i[0] === 'dash' && !leader)) && overdue ? String(overdue) : '' })),
       clockText: E.fmtDT(now), clk6: () => this.advance(6 * E.H), clk24: () => this.advance(24 * E.H), clk72: () => this.advance(72 * E.H), clk0: () => this.advance(0),
+      meName: me ? me.name : '', meRole: me ? ({ pr: 'قيادة العلاقات العامة', lead: 'قائد فريق — ' + (me.team === 'sup' ? 'الدعم والإمداد' : 'التواصل الخارجي'), member: 'عضو — ' + (me.team === 'sup' ? 'الدعم والإمداد' : 'التواصل الخارجي') }[me.role] || '') : '', meEmail: me && me.email || '',
+      signOut: () => { window.ECDB.signOut().then(() => { this.setState({ authStatus: 'out', authMsg: '', authOk: false, authBusy: false, notifOpen: false, modal: null, data: { users: [{ id: '_', name: '—', role: 'member', team: 'ext', title: '' }], orgs: [], acts: [], notifs: [], seq: 0 }, me: '_' }); }); },
       meId: s.me, userOpts: d.users.map((u) => ({ v: u.id, t: u.name + ' — ' + u.title })),
       onMe: (e) => { try { sessionStorage.setItem('ec_me', e.target.value); } catch (x) {} this.setState({ me: e.target.value, screen: 'dash', notifOpen: false }); },
       toggleTheme: () => { const t = light ? 'dark' : 'light'; try { localStorage.setItem('ec_theme', t); } catch (e) {} this.setState({ theme: t }); },
@@ -871,7 +1002,7 @@ class Component extends DCLogic {
     return ({ outreach: ['تواصل', 'var(--ink)'], followup: ['متابعة', 'var(--acc)'], coordination: ['تنسيق', 'var(--ink)'], status: ['تغيير حالة', 'var(--mut)'], reassign: ['إعادة إسناد', 'var(--mut)'],
       created: ['تسجيل جهة', 'var(--mut)'], reminder: ['تذكير', 'var(--warn)'], escalation: ['تصعيد', 'var(--bad)'], nudge: ['تنبيه قيادة', 'var(--acc)'] })[t] || [t, 'var(--mut)'];
   }
-  actByName(by) { const u = this.E.user(this.state.data, by); return by === 'system' ? 'النظام (محاكاة)' : u ? u.name : '—'; }
+  actByName(by) { const u = this.E.user(this.state.data, by); return by === 'system' ? (this.live ? 'النظام' : 'النظام (محاكاة)') : u ? u.name : '—'; }
   vLog() {
     const s = this.state, E = this.E, d = s.data;
     const rows = d.acts.filter((a) => s.lgOrg === 'all' || a.org === s.lgOrg).slice().sort((a, b) => b.at - a.at).slice(0, 120);
@@ -970,7 +1101,7 @@ class Component extends DCLogic {
   }
   renderVals() {
     const o = {};
-    ['vShell', 'vDash', 'vOrgs', 'vLead', 'vLog', 'vRep', 'vSet', 'vModals'].forEach((k) => { if (this[k]) Object.assign(o, this[k]()); });
+    ['vAuth', 'vShell', 'vDash', 'vOrgs', 'vLead', 'vLog', 'vRep', 'vSet', 'vModals'].forEach((k) => { if (this[k]) Object.assign(o, this[k]()); });
     return o;
   }
 }

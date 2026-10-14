@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نادي الاقتصاد — المقدمة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Thmanyah Sans';font-weight:300;src:url(assets/4d8f0974bf1cb241a3145538ed3fca2b.otf) format('opentype');font-display:swap}
+@font-face{font-family:'Thmanyah Sans';font-weight:400;src:url(assets/0a4ac9557594d952f5e221ed907ce43a.otf) format('opentype');font-display:swap}
+@font-face{font-family:'Thmanyah Sans';font-weight:500;src:url(assets/4327e113bb537dae7b56e95f43e98597.otf) format('opentype');font-display:swap}
+@font-face{font-family:'Thmanyah Sans';font-weight:700;src:url(assets/b5c8666da9059ad0a4d2f6f7c545b718.otf) format('opentype');font-display:swap}
+@font-face{font-family:'Thmanyah Sans';font-weight:900;src:url(assets/ffa33a9a673f0f0228e139e0b64aa130.otf) format('opentype');font-display:swap}
+body{margin:0;background:#07120d;font-family:'Thmanyah Sans',system-ui,sans-serif;color:#eef2ec}
+a{color:inherit}
+.sc{position:absolute;opacity:0;pointer-events:none;will-change:opacity,transform}
+.cta{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 28px;background:#3dd598;color:#052014;font-weight:700;font-size:18px;text-decoration:none;border-radius:2px}
+.cta:hover{background:#6ae6b2}
+.cta:focus-visible,.skip:focus-visible{outline:2px solid #eef2ec;outline-offset:3px}
+.skip{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border:1px solid #2a4a3b;color:#eef2ec;text-decoration:none;font-size:15px;font-weight:500}
+.skip:hover{border-color:#3dd598;color:#3dd598}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.cueline{animation:cue 2.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.cueline{animation:none}}
+@media (max-width:760px){
+ .sc{left:6% !important;right:6% !important;top:auto !important;bottom:7% !important;width:auto !important;text-align:center !important}
+ .twocol{display:block !important}
+ .hdr-skip{display:none !important}
+}
+</style>
+</helmet>
+
+<div ref="{{refTrack}}" style="position:relative;height:6400px;background:#07120d">
+ <div ref="{{refStage}}" style="position:sticky;top:0;height:100vh;min-height:560px;overflow:hidden;background:radial-gradient(120% 90% at 50% 30%,#0e2619 0%,#07120d 62%)">
+
+  <!-- فاصل هندسي خفيف: خطوط شبكة من هندسة الشعار -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(to left,rgba(238,242,236,.035) 1px,transparent 1px);background-size:12.5% 100%;pointer-events:none"></div>
+
+  <!-- الشعار: خمسة مستطيلات مقيسة من الملف الرسمي -->
+  <div style="position:absolute;left:50%;top:50%;width:max(min(100%,calc(100vh * 1.7778)),900px);aspect-ratio:16/9;transform:translate(-50%,-50%)">
+   <svg viewBox="0 0 1600 900" width="100%" height="100%" role="img" aria-label="شعار نادي الاقتصاد" style="display:block;overflow:visible">
+    <g fill="#eef2ec">
+     <rect id="b1" x="-57" y="-323" width="114" height="646" transform="translate(655.94 285.66) scale(.42)"></rect>
+     <rect id="b2" x="-58" y="-170.5" width="116" height="341" transform="translate(752.12 308.55) scale(.42)"></rect>
+     <rect id="b3" x="-59" y="-226" width="118" height="452" transform="translate(848.30 268.44) scale(.42)"></rect>
+     <rect id="b4" x="-58" y="-108" width="116" height="216" transform="translate(943.64 195.36) scale(.42)"></rect>
+     <rect id="b5" x="-58" y="-185.5" width="116" height="371" transform="translate(943.64 342.99) scale(.42)"></rect>
+    </g>
+    <image id="wm" href="assets/64434c81b43815a94ed6031d5ef954b3.png" x="590.21" y="447.36" width="419.58" height="106.26" opacity="1"></image>
+   </svg>
+  </div>
+
+  <!-- الترويسة -->
+  <header style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(16px,4vw,48px);z-index:5">
+   <div style="display:flex;align-items:center;gap:15px" aria-label="نادي الاقتصاد | Economics Club">
+    <svg viewBox="0 0 279 204" width="60" height="44" aria-hidden="true" fill="#eef2ec"><rect x="0" y="6" width="44" height="197"></rect><rect x="74" y="64" width="44" height="108"></rect><rect x="154" y="20" width="45" height="137"></rect><rect x="234" y="0" width="45" height="68"></rect><rect x="234" y="87" width="45" height="116"></rect></svg>
+    <img src="assets/1eddfdeb5ce76df079a05cc1021f2b41.png" alt="" style="height:43px;width:auto;display:block">
+   </div>
+   <div style="display:flex;gap:12px;align-items:center">
+    <span class="hdr-skip" style="font-size:14px;color:#8fa597">تخطّي المقدمة؟</span>
+    <a class="skip" href="app.html">الانتقال إلى لوحة التحكم</a>
+   </div>
+  </header>
+
+  <!-- مؤشر التقدم -->
+  <div aria-hidden="true" style="position:absolute;left:clamp(12px,2.5vw,32px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:4">
+   <span id="sceneNo" style="font-size:13px;font-weight:500;color:#8fa597;letter-spacing:.08em">٠١</span>
+   <div style="position:relative;width:2px;height:140px;background:#1d3a2b"><div id="prog" style="position:absolute;inset:0;background:#3dd598;transform:scaleY(0);transform-origin:top"></div></div>
+   <span style="font-size:13px;color:#4d6a5b">٠٥</span>
+  </div>
+
+  <!-- المشهد 1: الافتتاح -->
+  <div class="sc" id="sA" style="left:10%;width:80%;bottom:6%;text-align:center">
+   <div style="font-size:clamp(12px,1.1vw,15px);font-weight:500;letter-spacing:.14em;color:#3dd598;margin-bottom:10px">نادي الاقتصاد | Economics Club</div>
+   <h1 style="margin:0;font-weight:900;font-size:clamp(30px,4.6vw,68px);line-height:1.15">من العلاقــات، نصنــع الفــرص.</h1>
+   <p style="margin: 12px 0 0; font-weight: 300; font-size: clamp(14px,1.5vw,21px); color: #b9c9bf; width: 1164px; height: 55px; position: relative; top: 20px">منصة إدارة العلاقات والشراكات — نادي الاقتصاد</p>
+   <div aria-hidden="true" style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px"><span style="font-size:12px;color:#8fa597">مرّر للأسفل</span><div style="width:2px;height:28px;background:#1d3a2b;position:relative;overflow:hidden"><div class="cueline" style="position:absolute;inset:0;background:#3dd598"></div></div></div>
+  </div>
+
+  <!-- المشهد 2: فريقان -->
+  <div class="sc" id="sB" style="left:0;right:0;top:0;bottom:0">
+   <h2 style="position:absolute;top:13%;left:0;right:0;margin:0;text-align:center;font-weight:900;font-size:clamp(28px,3.8vw,58px)">فريقــان، منظومــة واحــدة</h2>
+   <div class="twocol" style="position:absolute;top:34%;left:13%;right:13%;display:grid;grid-template-columns:1fr 1fr;column-gap:12%">
+    <div style="padding-inline-end:4%">
+     <div style="font-size:13px;color:#3dd598;font-weight:500;letter-spacing:.1em;margin-bottom:8px">٠١</div>
+     <div style="font-weight:700;font-size:clamp(20px,2.1vw,30px);margin-bottom:8px">التواصل الخارجي</div>
+     <div style="font-weight:300;font-size:clamp(14px,1.25vw,18px);line-height:1.8;color:#b9c9bf">يفتح الأبواب مع الجهات، ويبني أول علاقة.</div>
+    </div>
+    <div style="padding-inline-start:4%">
+     <div style="font-size:13px;color:#3dd598;font-weight:500;letter-spacing:.1em;margin-bottom:8px">٠٢</div>
+     <div style="font-weight:700;font-size:clamp(20px,2.1vw,30px);margin-bottom:8px">الدعم والإمداد</div>
+     <div style="font-weight:300;font-size:clamp(14px,1.25vw,18px);line-height:1.8;color:#b9c9bf">يسند التواصل بالمتابعة والتجهيز، ويحوّل الردود إلى اتفاقات.</div>
+    </div>
+   </div>
+  </div>
+
+  <!-- المشهد 3: المسار -->
+  <div class="sc" id="sC" style="right:6%;top:26%;width:40%">
+   <div style="font-size:13px;color:#3dd598;font-weight:500;letter-spacing:.1em;margin-bottom:10px">٠٣ — مسار الشراكات</div>
+   <h2 style="margin:0 0 14px;font-weight:900;font-size:clamp(28px,3.6vw,54px);line-height:1.2">من أول تواصــل إلى قــرار</h2>
+   <p style="margin:0;font-weight:300;font-size:clamp(14px,1.35vw,19px);line-height:1.9;color:#b9c9bf">أربع حالات واضحة: بانتظار الرد، جاري التنسيق، موافقة، رفض — وكل جهة لها مسؤول واحد فقط، فلا تكرار ولا رسائل متضاربة.</p>
+  </div>
+
+  <!-- المشهد 4: القياس -->
+  <div class="sc" id="sD" style="right:6%;top:26%;width:40%">
+   <div style="font-size:13px;color:#3dd598;font-weight:500;letter-spacing:.1em;margin-bottom:10px">٠٤ — الأثر</div>
+   <h2 style="margin:0 0 14px;font-weight:900;font-size:clamp(28px,3.6vw,54px);line-height:1.2">نقيــس الأثــر لا الضجيــج</h2>
+   <p style="margin:0;font-weight:300;font-size:clamp(14px,1.35vw,19px);line-height:1.9;color:#b9c9bf">عدد الرسائل ليس نجاحًا؛ نقيس الردود والموافقات، ونذكّر بالمتابعة في وقتها.</p>
+  </div>
+
+  <!-- المشهد 5: الدخول -->
+  <div class="sc" id="sE" style="left:10%;width:80%;top:60%;text-align:center">
+   <div style="font-size:13px;color:#3dd598;font-weight:500;letter-spacing:.1em;margin-bottom:10px">٠٥ — جاهز</div>
+   <h2 style="margin:0 0 22px;font-weight:900;font-size:clamp(26px,3.4vw,50px);line-height:1.2">منصـــة إدارة العلاقـــات والشـــراكات</h2>
+   <a class="cta" href="app.html"><span>الانتقال إلى لوحة التحكم</span><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" fill="none" stroke="#052014" stroke-width="2"><path d="M15 9H3M8 4L3 9l5 5"></path></svg></a>
+   <p style="margin:16px 0 0;font-size:13px;color:#6f877a">بيانات تجريبية خيالية — تخزين محلي للنموذج الأولي فقط</p>
+  </div>
+
+ </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      refTrack: (el) => { this.track = el; },
+      refStage: (el) => { this.stage = el; }
+    };
+  }
+  componentDidMount() {
+    // هندسة الشعار الرسمية (مقيسة من الصورة المرفقة): x,y,w,h بوحدات الشعار
+    const BARS = [
+      { id: 'b1', x: 0, y: 0, w: 114, h: 646 },
+      { id: 'b2', x: 228, y: 207, w: 116, h: 341 },
+      { id: 'b3', x: 456, y: 56, w: 118, h: 452 },
+      { id: 'b4', x: 684, y: 0, w: 116, h: 216 },
+      { id: 'b5', x: 684, y: 274, w: 116, h: 371 }
+    ];
+    // الشعار يحتفظ بهويته دائمًا: نفس المستطيلات بنفس الأحجام والاتجاه (لا تدوير ولا تغيير مقياس) — إزاحة فقط.
+    // pose = [X, Y, rotation=0, scaleX=S, scaleY=S] ؛ مركز المستطيل في إحداثيات المشهد 1600×900
+    const S = .42;
+    const at = (xs, ys) => BARS.map((b, i) => [xs[i], ys[i], 0, S, S]);
+    const asmX = BARS.map((b) => 800 - S * 400 + S * (b.x + b.w / 2));
+    const asmY = (oy) => BARS.map((b) => oy + S * (b.y + b.h / 2));
+    const asm = (oy) => at(asmX, asmY(oy));
+    const wmAt = (oy, o) => [800 - S * 999 / 2, oy + S * 708, S * 999, S * 253, o];
+    const OY0 = 150, OY1 = 90;
+    const P0 = asm(OY0);
+    // تباعد أفقي: الأعمدة تنفصل عن بعضها بنفس ارتفاعاتها الأصلية
+    const P1 = at([300, 560, 800, 1040, 1300], asmY(OY0));
+    // المشهد 2: مجموعتان على الأطراف وفاصل في الوسط (بين الفريقين)
+    const P2 = at([95, 195, 800, 1480, 1565], [340, 400, 470, 340, 440]);
+    // المشهد 3: درج هابط في النصف الأيسر، والنص في اليمين
+    const P3 = at([150, 290, 430, 570, 710], [300, 350, 400, 450, 500]);
+    // المشهد 4: درج صاعد في النصف الأيسر
+    const P4 = at([150, 290, 430, 570, 710], [520, 470, 420, 370, 320]);
+    // عودة تدريجية: تباعد أفقي ثم اجتماع
+    const P5 = at([300, 560, 800, 1040, 1300], asmY(OY0));
+    const P6 = asm(OY0);
+    const P7 = asm(OY1);
+    const W0 = wmAt(OY0, 1), W0z = wmAt(OY0, 0), W6 = wmAt(OY0, 1), W6z = wmAt(OY0, 0), W7 = wmAt(OY1, 1);
+    const K = [
+      { t: 0, P: P0, W: W0 }, { t: .08, P: P0, W: W0 }, { t: .20, P: P1, W: W0z },
+      { t: .30, P: P2, W: W0z }, { t: .40, P: P2, W: W0z },
+      { t: .48, P: P3, W: W0z }, { t: .58, P: P3, W: W0z },
+      { t: .65, P: P4, W: W0z }, { t: .76, P: P4, W: W0z },
+      { t: .84, P: P5, W: W6z }, { t: .92, P: P6, W: W6 },
+      { t: .985, P: P7, W: W7 }, { t: 1, P: P7, W: W7 }
+    ];
+    this.K = K;
+    this.els = BARS.map((b) => this.stage.querySelector('#' + b.id));
+    this.wm = this.stage.querySelector('#wm');
+    this.prog = this.stage.querySelector('#prog');
+    this.no = this.stage.querySelector('#sceneNo');
+    const sc = (id, i0, i1, o0, o1) => ({ el: this.stage.querySelector('#' + id), i0, i1, o0, o1 });
+    this.scenes = [sc('sA', -1, -.5, .06, .14), sc('sB', .22, .29, .36, .41), sc('sC', .47, .53, .58, .64), sc('sD', .64, .69, .72, .76), sc('sE', .93, .98, 9, 10)];
+    this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.last = -1;
+    const tick = () => { this.frame(); this.raf = requestAnimationFrame(tick); };
+    this.raf = requestAnimationFrame(tick);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  frame() {
+    if (!this.track || !this.stage || !this.els) return;
+    const r = this.track.getBoundingClientRect();
+    const vh = this.stage.getBoundingClientRect().height || window.innerHeight;
+    const total = r.height - vh;
+    let p = total > 0 ? -r.top / total : 0;
+    p = Math.max(0, Math.min(1, p));
+    if (Math.abs(p - this.last) < 0.00015) return;
+    this.last = p;
+    const K = this.K;
+    let i = 0;
+    while (i < K.length - 2 && p > K[i + 1].t) i++;
+    const a = K[i], b = K[i + 1];
+    let f = b.t === a.t ? 1 : Math.max(0, Math.min(1, (p - a.t) / (b.t - a.t)));
+    f = this.reduce ? (f < .5 ? 0 : 1) : f * f * (3 - 2 * f);
+    const L = (x, y) => x + (y - x) * f;
+    for (let n = 0; n < 5; n++) {
+      const pa = a.P[n], pb = b.P[n];
+      const X = L(pa[0], pb[0]), Y = L(pa[1], pb[1]), R = L(pa[2], pb[2]), SX = L(pa[3], pb[3]), SY = L(pa[4], pb[4]);
+      this.els[n].setAttribute('transform', 'translate(' + X.toFixed(2) + ' ' + Y.toFixed(2) + ') rotate(' + R.toFixed(2) + ') scale(' + SX.toFixed(4) + ' ' + SY.toFixed(4) + ')');
+    }
+    const wa = a.W, wb = b.W;
+    this.wm.setAttribute('x', L(wa[0], wb[0]).toFixed(2));
+    this.wm.setAttribute('y', L(wa[1], wb[1]).toFixed(2));
+    this.wm.setAttribute('width', L(wa[2], wb[2]).toFixed(2));
+    this.wm.setAttribute('height', L(wa[3], wb[3]).toFixed(2));
+    this.wm.setAttribute('opacity', Math.pow(Math.max(0, L(wa[4], wb[4])), 3).toFixed(3));
+    const cl = (v) => Math.max(0, Math.min(1, v));
+    this.scenes.forEach((s) => {
+      if (!s.el) return;
+      const o = cl((p - s.i0) / (s.i1 - s.i0)) * cl((s.o1 - p) / (s.o1 - s.o0));
+      s.el.style.opacity = o.toFixed(3);
+      s.el.style.transform = this.reduce ? 'none' : 'translateY(' + ((1 - o) * 22).toFixed(1) + 'px)';
+      s.el.style.pointerEvents = o > .6 ? 'auto' : 'none';
+      s.el.style.visibility = o < .01 ? 'hidden' : 'visible';
+    });
+    this.prog.style.transform = 'scaleY(' + p.toFixed(4) + ')';
+    const n = p < .2 ? 1 : p < .45 ? 2 : p < .65 ? 3 : p < .85 ? 4 : 5;
+    this.no.textContent = '٠' + '١٢٣٤٥'.charAt(n - 1);
+  }
+}
+</script>
+</body>
+</html>

@@ -938,7 +938,7 @@ class Component extends DCLogic {
       open: () => this.openModal({ k: 'detail', id: f.org.id }), log: () => this.doLog(f.org.id, '') }; });
     const go = (st) => () => this.setState({ screen: 'orgs', ofStatus: st, ofOwner: 'all', oq: '' });
     return {
-      greet: 'أهلًا ' + me.name + ' — ' + me.title + ' · بيانات تجريبية خيالية',
+      greet: 'أهلًا ' + me.name + ' — ' + me.title + (this.live ? '' : ' · بيانات تجريبية خيالية'),
       counters: [[0, m.waiting], [1, m.coordinating], [2, m.approved], [3, m.rejected]].map((x) => ({ n: String(x[1]), label: E.STATUS[x[0]], color: this.statusColor(x[0]), go: go(String(x[0])) })),
       isLeader: E.isLeader(me), lc: { today: m.dueToday, overdue: m.overdue, ignored: E.ignoredMembers(d, now).length },
       goLead: () => this.setState({ screen: 'lead' }), openAdd: () => { this.pick = { project: '', channel: '' }; this.openModal({ k: 'add' }); }, mine, noMine: mine.length === 0

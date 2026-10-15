@@ -4,7 +4,7 @@
   var cfg = window.EC_CONFIG;
   if (!cfg || !cfg.supabaseUrl || !cfg.anonKey) { window.ECDB = null; return; }
   var URL_ = String(cfg.supabaseUrl).replace(/\/+$/, ''), KEY = cfg.anonKey, SK = 'ec_sb_session_v1';
-  var sess = null;
+  var sess = null, recSess = null;
   try { sess = JSON.parse(localStorage.getItem(SK) || 'null'); } catch (e) { sess = null; }
   function keep(s) { sess = s; try { if (s) localStorage.setItem(SK, JSON.stringify(s)); else localStorage.removeItem(SK); } catch (e) {} }
   function mkSession(j) { return { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Date.now() + (Number(j.expires_in) || 3600) * 1000, user: j.user }; }
@@ -15,7 +15,8 @@
     [/email not confirmed/i, 'لم يُفعَّل البريد بعد — افتح رسالة التفعيل المرسلة إليك ثم ادخل.'],
     [/at least (\d+) char/i, 'كلمة المرور قصيرة — استخدم ٨ أحرف على الأقل.'],
     [/valid email|invalid email|unable to validate email/i, 'صيغة البريد غير صحيحة.'],
-    [/rate limit|too many|over_email_send_rate_limit/i, 'محاولات كثيرة — انتظر دقيقة ثم أعد المحاولة.'],
+    [/rate limit|too many|over_email_send_rate_limit/i, 'محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة. (الإرسال المجاني محدود بعدد قليل بالساعة)'],
+    [/same password|different from the old/i, 'اختر كلمة مرور مختلفة عن القديمة.'],
     [/signups? (not allowed|disabled)/i, 'التسجيل مغلق حاليًا — تواصل مع قيادة النادي.']
   ];
   function arMsg(m) { m = String(m || ''); for (var i = 0; i < AR.length; i++) if (AR[i][0].test(m)) return AR[i][1]; return m || 'تعذّر إكمال الطلب.'; }
@@ -102,6 +103,34 @@
       if (t) return fetch(URL_ + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + t } }).catch(function () {});
       return Promise.resolve();
     },
+    // رابط استعادة كلمة المرور يصل بالبريد ويفتح الموقع وفي عنوانه #access_token=...&type=recovery
+    recoverFromUrl: function () {
+      var h = String(location.hash || '').replace(/^#/, ''), q = {};
+      if (!h) return null;
+      h.split('&').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });
+      if (q.error || q.error_code) {
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+        return { error: /expired|invalid/i.test(q.error_description || q.error_code || '') ? 'انتهت صلاحية الرابط أو استُخدم من قبل — اطلب رابطًا جديدًا.' : 'تعذّر فتح رابط الاستعادة — اطلب رابطًا جديدًا.' };
+      }
+      if (q.type === 'recovery' && q.access_token) {
+        recSess = { access_token: q.access_token, refresh_token: q.refresh_token || '', expires_at: Date.now() + (Number(q.expires_in) || 3600) * 1000, user: null };
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+        return { recovery: true };
+      }
+      return null;
+    },
+    sendReset: function (email, redirectTo) {
+      return fetch(URL_ + '/auth/v1/recover', { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, gotrue_meta_security: {}, redirect_to: redirectTo }) })
+        .then(function (r) { return r.text().then(function (t) { var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {} if (!r.ok) throw failure(r.status, j, 'تعذّر إرسال الرابط'); return true; }); });
+    },
+    setNewPassword: function (password) {
+      if (!recSess) return Promise.reject(new Error('انتهت صلاحية الرابط — اطلب رابطًا جديدًا.'));
+      return fetch(URL_ + '/auth/v1/user', { method: 'PUT', headers: { apikey: KEY, 'Content-Type': 'application/json', Authorization: 'Bearer ' + recSess.access_token }, body: JSON.stringify({ password: password }) })
+        .then(function (r) { return r.json().then(function (j) {
+          if (!r.ok) throw failure(r.status, j, 'تعذّر تغيير كلمة المرور');
+          recSess.user = j; var s = recSess; recSess = null; keep(s); return s;
+        }); });
+    },
     runReminders: function () { return rest('POST', 'rpc/ec_run_reminders', {}).catch(function () { return null; }); },
     load: function () {
       return Promise.all([selectAll('profiles', 'created_at.asc,id.asc'), selectAll('orgs', 'created_at.desc,id.asc'), selectAll('acts', 'at.desc,id.asc'), selectAll('notifs', 'delivered_at.desc,id.asc')]).then(function (a) {
@@ -119,6 +148,11 @@
         if (patch.name !== undefined) patch.name_key = window.ECEngine.norm(o.name);
         if (!Object.keys(patch).length) return;
         ops.push(function () { return rest('PATCH', 'orgs?id=eq.' + encodeURIComponent(o.id), patch, 'return=representation').then(function (rows) { if (!rows || !rows.length) { var e = new Error('ليست لديك صلاحية تعديل هذه الجهة.'); e.code = 'RLS'; throw e; } }); });
+      });
+      var nowIds = byId(newS.orgs);
+      oldS.orgs.forEach(function (o) {
+        if (nowIds[o.id]) return;
+        ops.push(function () { return rest('DELETE', 'orgs?id=eq.' + encodeURIComponent(o.id), undefined, 'return=representation').then(function (rows) { if (!rows || !rows.length) { var e = new Error('ليست لديك صلاحية حذف هذه الجهة.'); e.code = 'RLS'; throw e; } }); });
       });
       var newActs = newS.acts.filter(function (a) { return !am[a.id]; });
       if (newActs.length) ops.push(function () { return rest('POST', 'acts', newActs.map(function (a) { return { id: a.id, org: a.org, by: a.by, at: a.at, type: a.type, note: a.note || '', meta: a.meta || null }; }), 'return=minimal'); });

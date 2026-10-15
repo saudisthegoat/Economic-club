@@ -143,6 +143,17 @@
     n.acts.unshift({ id: nextId(n, 'a'), org: orgId, by, at: now, type: 'reassign', note: 'أُسندت من ' + user(s, o.owner).name + ' إلى ' + user(s, newOwner).name });
     return { ok: true, state: n };
   }
+  // حذف جهة نهائيًا (مع نشاطها وإشعاراتها) — لقيادة العلاقات العامة فقط
+  function deleteOrg(s, orgId, by) {
+    const o = org(s, orgId), u = user(s, by);
+    if (!o) return err('NOT_FOUND', 'الجهة غير موجودة.');
+    if (!u || u.role !== 'pr') return err('FORBIDDEN', 'حذف الجهات لقيادة العلاقات العامة فقط.');
+    const n = clone(s);
+    n.orgs = n.orgs.filter((x) => x.id !== orgId);
+    n.acts = n.acts.filter((a) => a.org !== orgId);
+    n.notifs = n.notifs.filter((x) => x.org !== orgId);
+    return { ok: true, state: n };
+  }
   // تسجيل متابعة: لا يغيّر الحالة، ويعيد المؤقّت
   function logFollowup(s, orgId, by, now, note) {
     const o = org(s, orgId);
@@ -296,13 +307,12 @@
 
   return { H, D, REMIND_AFTER, ESCALATE_AFTER, TZ, STATUS, PROJECTS, CHANNELS, projectName, channelName, MEANINGFUL, isActive, isLeader, canManage, teamLeadOf, user, org, norm,
     dayKey, fmtDT, fmtD, startOfDay, todayAt, lastMeaningfulAt, lastActivity, reminderInfo,
-    addOrg, setStatus, reassign, logFollowup, setActNote, nudge, markRead, runEngine, notifOpen,
+    addOrg, setStatus, reassign, deleteOrg, logFollowup, setActNote, nudge, markRead, runEngine, notifOpen,
     myFollowups, leaderRows, ignoredMembers, metrics, seed };
 });
 
 </script>
-<script src="config.js"></script>
-<script src="ecsb.js"></script>
+<script src="config.js"></script><script src="ecsb.js"></script>
 </head>
 <body>
 <x-dc>
@@ -370,14 +380,15 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
   <sc-if value="{{au.form}}" hint-placeholder-val="{{true}}">
    <h1 class="h-disp" style="font-size:28px;margin:0 0 6px">{{au.title}}</h1>
    <div class="lbl" style="margin-bottom:16px">{{au.sub}}</div>
-   <div role="group" aria-label="نوع العملية" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+   <sc-if value="{{au.showTabs}}" hint-placeholder-val="{{true}}"><div role="group" aria-label="نوع العملية" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
     <button type="button" class="pick {{au.inOn}}" aria-pressed="{{au.isIn}}" onClick="{{au.goIn}}"><b>دخول</b></button>
     <button type="button" class="pick {{au.upOn}}" aria-pressed="{{au.isUp}}" onClick="{{au.goUp}}"><b>حساب جديد</b></button>
-   </div>
+   </div></sc-if>
    <div data-form="1" onKeyDown="{{au.key}}" style="display:flex;flex-direction:column;gap:14px">
     <sc-if value="{{au.isUp}}" hint-placeholder-val="{{false}}"><label><span class="lbl">اسمك (يظهر لزملائك)</span><input class="inp" name="name" autocomplete="name" placeholder="مثال: الهنوف السهلي"></label></sc-if>
-    <label><span class="lbl">البريد الإلكتروني</span><input class="inp" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@example.com"></label>
-    <label><span class="lbl">كلمة المرور</span><input class="inp" name="password" type="password" dir="ltr" autocomplete="current-password" placeholder="٨ أحرف على الأقل"></label>
+    <sc-if value="{{au.showEmail}}" hint-placeholder-val="{{true}}"><label><span class="lbl">البريد الإلكتروني</span><input class="inp" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@example.com"></label></sc-if>
+    <sc-if value="{{au.showPass}}" hint-placeholder-val="{{true}}"><label><span class="lbl">{{au.passLabel}}</span><input class="inp" name="password" type="password" dir="ltr" autocomplete="{{au.passAuto}}" placeholder="٨ أحرف على الأقل"></label></sc-if>
+    <sc-if value="{{au.showForgot}}" hint-placeholder-val="{{true}}"><button type="button" class="btn2" style="align-self:flex-start;padding:6px 10px;font-size:14px" onClick="{{au.goForgot}}">نسيت كلمة المرور؟</button></sc-if>
     <sc-if value="{{au.isUp}}" hint-placeholder-val="{{false}}">
      <div role="group" aria-label="الفريق"><span class="lbl">فريقك</span>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px"><sc-for list="{{au.teams}}" as="t"><button type="button" class="pick {{t.on}}" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><b>{{t.name}}</b></button></sc-for></div>
@@ -385,8 +396,9 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
     </sc-if>
     <sc-if value="{{au.msg}}" hint-placeholder-val="{{false}}"><div role="alert" style="border:1px solid {{au.msgColor}};color:{{au.msgColor}};padding:10px 12px;font-size:14px;line-height:1.7">{{au.msg}}</div></sc-if>
     <button type="button" class="btn" onClick="{{au.submit}}" disabled="{{au.busy}}">{{au.cta}}</button>
+    <sc-if value="{{au.showBack}}" hint-placeholder-val="{{false}}"><button type="button" class="btn2" onClick="{{au.goIn}}">رجوع لتسجيل الدخول</button></sc-if>
    </div>
-   <div class="lbl" style="margin-top:14px;line-height:1.8">يُنشأ الحساب بدور «عضو». ترقية الأدوار (قائد فريق / قيادة العلاقات) تتم من إدارة المنصة فقط.</div>
+   <sc-if value="{{au.showTabs}}" hint-placeholder-val="{{true}}"><div class="lbl" style="margin-top:14px;line-height:1.8">يُنشأ الحساب بدور «عضو». ترقية الأدوار (قائد فريق / قيادة العلاقات) تتم من إدارة المنصة فقط.</div></sc-if>
   </sc-if>
  </div>
 </div>
@@ -513,7 +525,7 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
    <tbody>
     <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
      <tr class="row">
-      <td><button onClick="{{r.open}}" style="background:none;border:0;padding:0;font-weight:700;font-size:14px;text-align:start">{{r.name}}</button><div class="lbl">{{r.channel}}</div></td>
+      <td><button onClick="{{r.open}}" style="background:none;border:0;padding:0;font-weight:700;font-size:14px;text-align:start">{{r.name}}</button><div class="lbl">{{r.channel}}</div><sc-if value="{{r.hasNotes}}" hint-placeholder-val="{{false}}"><div class="lbl" style="color:var(--ink);opacity:.8;max-width:260px;white-space:normal;line-height:1.6">📝 {{r.notes}}</div></sc-if></td>
       <td><span class="chip" dir="ltr">{{r.project}}</span></td>
       <td>{{r.owner}}<div class="lbl">{{r.team}}</div></td>
       <td><sc-if value="{{r.canEdit}}" hint-placeholder-val="{{true}}"><select class="inp" style="min-height:36px;width:150px" aria-label="حالة {{r.name}}" value="{{r.status}}" onChange="{{r.setStatus}}"><sc-for list="{{statusOpts}}" as="o"><option value="{{o.v}}">{{o.t}}</option></sc-for></select></sc-if><sc-if value="{{r.readOnly}}" hint-placeholder-val="{{false}}"><span class="chip" style="color:{{r.statusColor}};border-color:{{r.statusColor}}">{{r.statusText}}</span></sc-if></td>
@@ -684,6 +696,7 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
  <sc-if value="{{md.detail}}" hint-placeholder-val="{{false}}">
   <div class="overlay" onClick="{{md.close}}"><div role="dialog" aria-modal="true" aria-labelledby="m-det" class="card" onClick="{{md.stop}}" style="width:min(720px,100%);max-height:92vh;overflow:auto;padding:24px">
    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><h2 id="m-det" class="h-disp" style="font-size:24px">{{md.o.name}}</h2><div class="lbl" style="margin-top:4px"><span dir="ltr">{{md.o.sector}}</span> · {{md.o.contact}} · الاسم: <b style="color:var(--ink)">{{md.o.owner}}</b></div></div><button class="btn2" onClick="{{md.close}}" aria-label="إغلاق">✕</button></div>
+   <sc-if value="{{md.o.hasNotes}}" hint-placeholder-val="{{false}}"><div style="margin:12px 0 4px;padding:10px 12px;border:1px solid var(--line);background:var(--s2);line-height:1.8"><span class="lbl">ملاحظات الجهة</span><div style="white-space:pre-wrap">{{md.o.notes}}</div></div></sc-if>
    <div style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;align-items:center"><span class="chip" style="color:{{md.o.statusColor}};border-color:{{md.o.statusColor}}">{{md.o.status}}</span><span class="chip num" style="color:{{md.o.color}};border-color:{{md.o.color}}">{{md.o.tag}}</span></div>
    <sc-if value="{{md.canEdit}}" hint-placeholder-val="{{false}}">
     <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:12px">
@@ -694,6 +707,7 @@ textarea.inp{padding:10px 12px;min-height:76px;resize:vertical}
      <div data-form="1" onKeyDown="{{md.logKey}}" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px"><label style="flex:1 1 240px"><span class="lbl">ملاحظة (اختيارية)</span><input class="inp" name="note" placeholder="مثال: اتصلت ولم يُجب"></label><button type="button" class="btn" onClick="{{md.logSubmit}}">تسجيل متابعة</button></div>
     </sc-if>
    </sc-if>
+   <sc-if value="{{md.canDelete}}" hint-placeholder-val="{{false}}"><div style="margin-bottom:14px"><button type="button" class="btn2" style="color:var(--bad);border-color:var(--bad)" onClick="{{md.del}}">حذف الجهة نهائيًا</button></div></sc-if>
    <div style="font-weight:700;margin-bottom:6px">سجل النشاط</div>
    <sc-for list="{{md.hist}}" as="h" hint-placeholder-count="3"><div style="padding:8px 0;border-top:1px solid var(--line);font-size:14px"><span class="lbl num">{{h.at}}</span> — <b>{{h.type}}</b>: {{h.note}} <span class="lbl">({{h.by}})</span></div></sc-for>
   </div></div>
@@ -758,7 +772,10 @@ class Component extends DCLogic {
   // ===== الوضع الحي (قاعدة بيانات مشتركة) =====
   liveBoot() {
     const DB = window.ECDB;
-    DB.restore().then((sess) => { if (sess) return this.liveEnter(sess); this.setState({ authStatus: 'out' }); }).catch(() => this.setState({ authStatus: 'out' }));
+    const rc = DB.recoverFromUrl();
+    if (rc && rc.recovery) this.setState({ authStatus: 'out', authMode: 'reset', authMsg: '', authOk: false });
+    else if (rc && rc.error) this.setState({ authStatus: 'out', authMode: 'forgot', authMsg: '⚠ ' + rc.error, authOk: false });
+    else DB.restore().then((sess) => { if (sess) return this.liveEnter(sess); this.setState({ authStatus: 'out' }); }).catch(() => this.setState({ authStatus: 'out' }));
     this.onFocus = () => { if (this.state.authStatus === 'in') this.liveRefresh(); };
     window.addEventListener('focus', this.onFocus);
     this.liveTimer = setInterval(() => { if (this.state.authStatus === 'in') this.liveRefresh(); }, 15000);
@@ -856,10 +873,24 @@ class Component extends DCLogic {
   }
   // ===== شاشة الدخول =====
   vAuth() {
-    const s = this.state, mode = s.authMode, up = mode === 'up';
+    const s = this.state, mode = s.authMode, up = mode === 'up', forgot = mode === 'forgot', reset = mode === 'reset';
     const readForm = (e) => { const v = {}; const root = e.target && e.target.closest ? e.target.closest('[data-form]') : null; if (root) root.querySelectorAll('input[name]').forEach((el) => { v[el.name] = String(el.value).trim(); }); return v; };
     const submit = (e) => {
       const v = readForm(e), DB = window.ECDB;
+      if (forgot) {
+        if (!v.email) { this.setState({ authMsg: '⚠ اكتب بريدك الإلكتروني.', authOk: false }); return; }
+        this.setState({ authBusy: true, authMsg: '', authOk: false });
+        DB.sendReset(v.email, location.origin + location.pathname).then(() => this.setState({ authBusy: false, authMsg: 'إذا كان البريد مسجّلًا فقد أرسلنا إليه رابط الاستعادة. افتح الرسالة (وتفقّد البريد المزعج) ثم اضغط الرابط.', authOk: true }))
+          .catch((err) => this.setState({ authBusy: false, authMsg: '⚠ ' + (err && err.message ? err.message : 'تعذّر إرسال الرابط'), authOk: false }));
+        return;
+      }
+      if (reset) {
+        if (!v.password || v.password.length < 8) { this.setState({ authMsg: '⚠ كلمة المرور الجديدة قصيرة — ٨ أحرف على الأقل.', authOk: false }); return; }
+        this.setState({ authBusy: true, authMsg: '', authOk: false });
+        DB.setNewPassword(v.password).then((sess) => { this.setState({ authBusy: false, authStatus: 'loading', authMode: 'in' }); return this.liveEnter(sess); })
+          .catch((err) => this.setState({ authBusy: false, authMsg: '⚠ ' + (err && err.message ? err.message : 'تعذّر تغيير كلمة المرور'), authOk: false }));
+        return;
+      }
       if (!v.email || !v.password) { this.setState({ authMsg: '⚠ اكتب البريد وكلمة المرور.', authOk: false }); return; }
       if (up && !v.name) { this.setState({ authMsg: '⚠ اكتب اسمك ليظهر لزملائك.', authOk: false }); return; }
       if (up && v.password.length < 8) { this.setState({ authMsg: '⚠ كلمة المرور قصيرة — ٨ أحرف على الأقل.', authOk: false }); return; }
@@ -874,10 +905,14 @@ class Component extends DCLogic {
       showLogin: this.live && s.authStatus !== 'in', showApp: s.authStatus === 'in', live: this.live, demo: !this.live,
       au: {
         loading: s.authStatus === 'loading', form: s.authStatus === 'out', isUp: up, isIn: !up, inOn: up ? '' : 'on', upOn: up ? 'on' : '',
-        title: up ? 'حساب جديد' : 'تسجيل الدخول', sub: up ? 'سجّل مرة واحدة بإيميلك — ثم تدخل دائمًا بنفس البريد.' : 'ادخل بالبريد وكلمة المرور.',
+        showTabs: !forgot && !reset, showEmail: !reset, showPass: !forgot, showForgot: mode === 'in', showBack: forgot,
+        passLabel: reset ? 'كلمة المرور الجديدة' : 'كلمة المرور', passAuto: reset || up ? 'new-password' : 'current-password',
+        goForgot: () => this.setState({ authMode: 'forgot', authMsg: '', authOk: false }),
+        title: reset ? 'كلمة مرور جديدة' : forgot ? 'استعادة كلمة المرور' : up ? 'حساب جديد' : 'تسجيل الدخول',
+        sub: reset ? 'اختر كلمة مرور جديدة (٨ أحرف على الأقل) وستدخل مباشرة.' : forgot ? 'اكتب بريدك وسنرسل لك رابطًا لتعيين كلمة مرور جديدة.' : up ? 'سجّل مرة واحدة بإيميلك — ثم تدخل دائمًا بنفس البريد.' : 'ادخل بالبريد وكلمة المرور.',
         goIn: () => this.setState({ authMode: 'in', authMsg: '' }), goUp: () => this.setState({ authMode: 'up', authMsg: '' }),
         teams: [['ext', 'التواصل الخارجي'], ['sup', 'الدعم والإمداد']].map((t) => ({ name: t[1], on: s.authTeam === t[0] ? 'on' : '', pressed: s.authTeam === t[0], pick: () => this.setState({ authTeam: t[0] }) })),
-        msg: s.authMsg, msgColor: s.authOk ? 'var(--acc)' : 'var(--bad)', busy: s.authBusy, cta: s.authBusy ? 'لحظة…' : up ? 'إنشاء الحساب' : 'دخول',
+        msg: s.authMsg, msgColor: s.authOk ? 'var(--acc)' : 'var(--bad)', busy: s.authBusy, cta: s.authBusy ? 'لحظة…' : reset ? 'حفظ كلمة المرور والدخول' : forgot ? 'أرسل رابط الاستعادة' : up ? 'إنشاء الحساب' : 'دخول',
         submit, key: (e) => { if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') { e.preventDefault(); submit(e); } }
       }
     };
@@ -948,7 +983,7 @@ class Component extends DCLogic {
     const s = this.state, E = this.E, d = s.data, ow = E.user(d, o.owner), i = E.reminderInfo(d, o, now);
     const t = i.active ? this.tag(i, now) : { tag: 'لا تذكيرات (' + E.STATUS[o.status] + ')', color: 'var(--mut)' };
     const canEdit = E.canManage(d, s.me, o);
-    return { name: o.name, contact: o.contact || '—', project: E.projectName(o.project), channel: E.channelName(o.channel), owner: o.person || (ow ? ow.name : '—'), team: ow && ow.team === 'ext' ? 'التواصل الخارجي' : ow && ow.team === 'sup' ? 'الدعم والإمداد' : 'قيادة العلاقات',
+    return { name: o.name, notes: o.notes || '', hasNotes: !!(o.notes && String(o.notes).trim()), contact: o.contact || '—', project: E.projectName(o.project), channel: E.channelName(o.channel), owner: o.person || (ow ? ow.name : '—'), team: ow && ow.team === 'ext' ? 'التواصل الخارجي' : ow && ow.team === 'sup' ? 'الدعم والإمداد' : 'قيادة العلاقات',
       status: String(o.status), statusText: E.STATUS[o.status], statusColor: this.statusColor(o.status), tag: t.tag, color: t.color,
       canEdit, readOnly: !canEdit, canLog: canEdit && i.active,
       open: () => this.openModal({ k: 'detail', id: o.id }), log: () => this.doLog(o.id, ''),
@@ -1083,8 +1118,10 @@ class Component extends DCLogic {
       if (!o) { md.confirm = false; return out; }
       md.detail = true;
       const v = this.orgView(o, now);
-      md.o = { name: o.name, sector: E.projectName(o.project), contact: E.channelName(o.channel), owner: v.owner, ownerId: o.owner, status: v.statusText, statusV: String(o.status), statusColor: v.statusColor, tag: v.tag, color: v.color };
+      md.o = { name: o.name, notes: o.notes || '', hasNotes: !!(o.notes && String(o.notes).trim()), sector: E.projectName(o.project), contact: E.channelName(o.channel), owner: v.owner, ownerId: o.owner, status: v.statusText, statusV: String(o.status), statusColor: v.statusColor, tag: v.tag, color: v.color };
       md.canEdit = v.canEdit; md.isLeader = E.isLeader(me); md.canLog = v.canLog;
+      md.canDelete = !!me && me.role === 'pr';
+      md.del = () => this.openModal({ k: 'confirm', title: 'حذف «' + o.name + '»؟', text: 'سيُحذف نهائيًا مع سجل نشاطه وإشعاراته ولا يمكن التراجع. استخدمه للجهات المسجّلة بالخطأ فقط.', go: () => { const r = this.apply((st) => E.deleteOrg(st, o.id, s.me)); if (!r.ok) this.fail(r); else this.say('حُذفت الجهة'); } });
       md.setStatus = (e) => this.doStatus(o.id, parseInt(e.target.value, 10));
       md.setOwner = (e) => { const r = this.apply((st, t) => E.reassign(st, o.id, e.target.value, s.me, t)); if (!r.ok) this.fail(r); else this.say('أُعيد إسناد الجهة'); };
       md.logKey = (e) => enter(md.logSubmit)(e);
